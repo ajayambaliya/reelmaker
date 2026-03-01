@@ -17,7 +17,12 @@ export const RevealExtras: React.FC<{
 
     const glowRadius = spring({ frame: relFrame - 6, fps, config: { damping: 15 } }) * 350;
     const opacity = interpolate(relFrame - 6, [0, 10, 40, 60], [0, 1, 1, 0], { extrapolateRight: "clamp" });
-    const cy = 690 + question.correct_idx * 180 + 80;
+    const correctIdx = ["A", "B", "C", "D"].indexOf(question.correct_answer);
+    const correctText = question.options[question.correct_answer] || "";
+    const rawBullets = question.explanation.split("•").map((b: string) => b.trim()).filter(Boolean);
+    const bullets = rawBullets.slice(0, 2).map((b: string) => b.substring(0, 60) + (b.length > 60 ? "..." : ""));
+
+    const cy = 690 + correctIdx * 180 + 80;
 
     // Banner slide up
     const bannerProg = spring({ frame: relFrame - 25, fps, config: { damping: 14 } });
@@ -114,13 +119,13 @@ export const RevealExtras: React.FC<{
                     boxShadow={`0 10px 20px ${palette.correct}44`}
                 >
                     <div style={{ fontSize: 34, fontWeight: "bold", fontFamily: FONT_FAMILY, color: palette.correct, textShadow: "1px 1px 3px black" }}>
-                        ✅ સાચો જવાબ: {question.correct_text.length > 32 ? question.correct_text.substring(0, 32) + "..." : question.correct_text}
+                        ✅ સાચો જવાબ: {correctText.length > 32 ? correctText.substring(0, 32) + "..." : correctText}
                     </div>
                 </GlassCard>
             )}
 
             {/* Explanation Bullets */}
-            {relFrame >= 30 && question.bullets.length > 0 && (
+            {relFrame >= 30 && bullets.length > 0 && (
                 <div style={{
                     position: "absolute",
                     top: 1420 - (bulletsProg * 20),
@@ -131,7 +136,7 @@ export const RevealExtras: React.FC<{
                     borderRadius: 18,
                     opacity: bulletsProg
                 }}>
-                    {question.bullets.map((b: string, i: number) => (
+                    {bullets.map((b: string, i: number) => (
                         <div key={i} style={{ fontSize: 36, color: "#eef", fontFamily: FONT_FAMILY, marginBottom: 10, lineHeight: 1.4, textShadow: "1px 1px 4px black" }}>
                             • {b}
                         </div>
