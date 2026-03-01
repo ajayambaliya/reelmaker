@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_GUJARATI } from "./Constants";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_GUJARATI, FONT_HEADLINE } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 export const RevealExtras: React.FC<{
@@ -26,7 +26,7 @@ export const RevealExtras: React.FC<{
     const correctIdx = ["A", "B", "C", "D"].indexOf(question.correct_answer);
     const correctText = question.options[question.correct_answer] || "";
     const rawBullets = question.explanation.split("•").map((b: string) => b.trim()).filter(Boolean);
-    const bullets = rawBullets.slice(0, 3).map((b: string) => b.substring(0, 60) + (b.length > 60 ? "..." : ""));
+    const bullets = rawBullets; // No truncation
 
     // Option circle Y position
     const cy = 680 + correctIdx * 200 + 80;
@@ -137,24 +137,24 @@ export const RevealExtras: React.FC<{
             {relExp >= 0 && bullets.length > 0 && (
                 <AbsoluteFill style={{
                     backgroundColor: "rgba(8, 12, 20, 0.98)", // Solid dark background to hide question phase
-                    opacity: interpolate(relExp, [0, 15, 55, 60], [0, 1, 1, 0], { extrapolateRight: "clamp" }), // Fades out precisely when loop phase begins
+                    opacity: interpolate(relExp, [0, 15, 115, 120], [0, 1, 1, 0], { extrapolateRight: "clamp" }), // Fades out precisely when loop phase begins
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "60px",
+                    padding: "40px",
                     zIndex: 50,
                     pointerEvents: "none"
                 }}>
                     <div style={{
-                        position: "absolute", top: 150, width: "100%", textAlign: "center"
+                        position: "absolute", top: 120, width: "100%", textAlign: "center"
                     }}>
                         <h2 style={{ fontSize: 55, fontWeight: "800", color: palette.gold, fontFamily: FONT_GUJARATI, letterSpacing: 2, textShadow: "0 5px 15px black" }}>
                             સ્પષ્ટતા (Explanation)
                         </h2>
                     </div>
 
-                    <div style={{ width: "100%", marginTop: 80 }}>
+                    <div style={{ width: "90%", marginTop: 80, maxHeight: "60%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                         {bullets.map((b: string, i: number) => {
                             const bulletProg = spring({ frame: relExp - 10 - (i * bulletSpacing), fps, config: { damping: 14 } });
                             if (bulletProg <= 0) return null;
@@ -162,21 +162,30 @@ export const RevealExtras: React.FC<{
                             return (
                                 <div key={i} style={{
                                     backgroundColor: "rgba(255,255,255,0.05)",
-                                    borderRadius: 20,
-                                    padding: "35px 30px",
-                                    marginBottom: 30,
+                                    borderRadius: 16,
+                                    padding: "25px 30px",
+                                    marginBottom: 20,
                                     opacity: bulletProg,
                                     transform: `translateY(${(1 - bulletProg) * 30}px) scale(${interpolate(bulletProg, [0, 1], [0.95, 1])})`,
                                     borderLeft: `8px solid ${palette.correct}`,
                                     boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
                                 }}>
-                                    <div style={{ fontSize: 46, color: "white", fontFamily: FONT_GUJARATI, fontWeight: "600", lineHeight: 1.5 }}>
+                                    <div style={{ fontSize: 36, color: "white", fontFamily: FONT_GUJARATI, fontWeight: "600", lineHeight: 1.5 }}>
                                         {b}
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
+
+                    {/* Embedded Next Question Animation */}
+                    {relExp > 20 && (
+                        <div style={{ position: "absolute", bottom: 80, width: "100%", textAlign: "center", opacity: spring({ frame: relExp - 20, fps }) }}>
+                            <h3 style={{ fontSize: 40, color: "white", fontFamily: FONT_HEADLINE, fontWeight: "800", textShadow: "0 4px 10px black", backgroundColor: "rgba(0,0,0,0.5)", padding: "15px 30px", display: "inline-block", borderRadius: 20 }}>
+                                NEXT QUESTION IN {Math.max(1, Math.ceil((120 - relExp) / 30))}...
+                            </h3>
+                        </div>
+                    )}
                 </AbsoluteFill>
             )}
 

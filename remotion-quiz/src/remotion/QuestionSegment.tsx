@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Img, staticFile } from "remotion";
 import {
     F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, F_LOOP,
     PALETTES, FONT_HEADLINE, FONT_GUJARATI, FONT_BODY
@@ -47,7 +47,6 @@ export const QuestionSegment: React.FC<{
 
     // -------------- LOOP PHASE (540 - 600) --------------
     // Loop only if not last
-    const loopProg = frame > loopStart ? spring({ frame: frame - loopStart, fps }) : 0;
 
     // Global fade out at end for smooth transition
     let sceneOpacity = interpolate(frame, [loopStart + F_LOOP - 15, loopStart + F_LOOP], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
@@ -71,14 +70,33 @@ export const QuestionSegment: React.FC<{
 
             {/* Hook Scene (Fades out when question appears) */}
             {frame < questionStart && (
-                <div style={{ position: "absolute", top: 400, width: "100%", textAlign: "center", opacity: hookOpacity, transform: `scale(${hookScale})` }}>
-                    <div style={{ fontSize: 100, marginBottom: 20 }}>🚨</div>
-                    <h1 style={{ fontSize: 75, fontWeight: "800", color: palette.gold, fontFamily: FONT_HEADLINE, textShadow: "0 10px 20px black", padding: "0 40px", lineHeight: 1.2 }}>
-                        90% GET THIS WRONG
+                <div style={{ position: "absolute", top: 250, width: "100%", textAlign: "center", opacity: hookOpacity, transform: `scale(${hookScale})`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Img src={staticFile("logo.png")} style={{ width: 150, height: 150, borderRadius: 20, marginBottom: 20 }} />
+                    <h1 style={{ fontSize: 60, fontWeight: "800", color: "#FF8A65", fontFamily: FONT_HEADLINE, margin: 0 }}>
+                        CurrentAdda
                     </h1>
-                    <h2 style={{ fontSize: 50, fontWeight: "600", color: "white", fontFamily: FONT_BODY, marginTop: 40 }}>
-                        Current Affairs Challenge
-                    </h2>
+                    <div style={{ margin: "40px 0" }}>
+                        <h2 style={{ fontSize: 45, fontWeight: "600", color: "white", fontFamily: FONT_GUJARATI, margin: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            📝 કરંટ અફેર્સ ક્વિઝ
+                        </h2>
+                        <h3 style={{ fontSize: 32, fontWeight: "400", color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY, marginTop: 10 }}>
+                            Current Affairs Quiz
+                        </h3>
+                    </div>
+                    <div style={{ backgroundColor: "rgba(255,255,255,0.1)", padding: "15px 40px", borderRadius: 30, marginBottom: 40, border: "1px solid rgba(255,255,255,0.2)" }}>
+                        <h3 style={{ fontSize: 32, color: "white", fontFamily: FONT_GUJARATI, margin: 0 }}>
+                            📅 {meta.date_gujarati || meta.date}
+                        </h3>
+                    </div>
+                    <h3 style={{ fontSize: 38, color: palette.correct, fontFamily: FONT_GUJARATI, fontWeight: "600", marginBottom: 60 }}>
+                        🎯 5 પ્રશ્નો • જવાબ વિચારો!
+                    </h3>
+
+                    <div style={{ backgroundColor: "rgba(255, 0, 0, 0.15)", padding: "20px 40px", borderRadius: 20, border: "2px solid rgba(255,0,0,0.3)", maxWidth: "80%" }}>
+                        <h2 style={{ fontSize: 42, fontWeight: "800", color: palette.gold, fontFamily: FONT_GUJARATI, margin: 0, textShadow: "0 4px 10px black", lineHeight: 1.4 }}>
+                            🚨 90% લોકો આ પ્રશ્નોના<br />ખોટા જવાબો આપે છે.
+                        </h2>
+                    </div>
                 </div>
             )}
 
@@ -143,14 +161,7 @@ export const QuestionSegment: React.FC<{
                 </>
             )}
 
-            {/* Loop End / Outro Next Indicator */}
-            {!isLast && frame > loopStart && (
-                <div style={{ position: "absolute", top: 1690 - (loopProg * 20), width: "100%", textAlign: "center", opacity: loopProg }}>
-                    <h3 style={{ fontSize: 40, color: palette.gold, fontFamily: FONT_HEADLINE, fontWeight: "800", textShadow: "0 4px 10px black", backgroundColor: "rgba(0,0,0,0.5)", padding: "20px", display: "inline-block", borderRadius: 20 }}>
-                        NEXT QUESTION IN {Math.ceil((loopStart + F_LOOP - frame) / 30)}...
-                    </h3>
-                </div>
-            )}
+            {/* Loop End / Outro Next Indicator (Removed as requested, moved to RevealExtras) */}
 
             {/* Progress Dots Bottom */}
             <div style={{ position: "absolute", top: 1770, width: "100%", display: "flex", justifyContent: "center", gap: 30, opacity: headerProg }}>
@@ -165,12 +176,15 @@ export const QuestionSegment: React.FC<{
             </div>
 
             {/* Bottom Link watermark */}
-            <div style={{ position: "absolute", top: 1815, width: "100%", textAlign: "center", opacity: headerProg }}>
-                <p style={{ fontSize: 26, color: "rgba(255,255,255,0.6)", fontFamily: FONT_BODY, margin: 0, fontWeight: "600" }}>
-                    🔗 {meta.live_quiz_link.replace('https://', '')}
-                </p>
-                <p style={{ fontSize: 24, color: palette.accent, fontFamily: FONT_BODY, marginTop: 10, fontWeight: "800" }}>
-                    @CurrentAdda
+            <div style={{ position: "absolute", top: 1810, width: "100%", textAlign: "center", opacity: headerProg }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 15 }}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <p style={{ fontSize: 26, color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY, margin: 0, fontWeight: "600" }}>
+                        Follow on Instagram
+                    </p>
+                </div>
+                <p style={{ fontSize: 28, color: palette.accent, fontFamily: FONT_BODY, margin: 0, fontWeight: "800", letterSpacing: 1 }}>
+                    @currentaddaa
                 </p>
             </div>
 
@@ -182,8 +196,11 @@ export const QuestionSegment: React.FC<{
                 >
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
                         <h1 style={{ fontSize: 65, fontWeight: "800", color: palette.gold, fontFamily: FONT_HEADLINE, marginBottom: 20 }}>🎉 EXCELLENT!</h1>
-                        <h2 style={{ fontSize: 40, color: "white", fontFamily: FONT_BODY, marginBottom: 40 }}>🔗 Take Live Quiz Link Below</h2>
-                        <h3 style={{ fontSize: 45, fontWeight: "800", color: palette.accent, fontFamily: FONT_HEADLINE }}>+ Follow @CurrentAdda</h3>
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: 40 }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 20 }}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            <h2 style={{ fontSize: 40, color: "white", fontFamily: FONT_BODY, margin: 0 }}>Follow on Instagram</h2>
+                        </div>
+                        <h3 style={{ fontSize: 45, fontWeight: "800", color: palette.accent, fontFamily: FONT_HEADLINE }}>@currentaddaa</h3>
                     </div>
                 </GlassCard>
             )}
