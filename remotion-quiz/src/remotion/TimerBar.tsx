@@ -1,13 +1,13 @@
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, PALETTES, FONT_HEADLINE } from "./Constants";
+import { F_OPTIONS, F_TENSION, PALETTES, FONT_HEADLINE } from "./Constants";
 
-export const TimerBar: React.FC<{ reelIndex: number }> = ({ reelIndex }) => {
+export const TimerBar: React.FC<{ reelIndex: number; optionsStart: number }> = ({ reelIndex, optionsStart }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
 
-    const tensionStart = F_HOOK + F_QUESTION + F_OPTIONS;
+    const tensionStart = optionsStart + F_OPTIONS;
 
     // Only show during tension phase
     if (frame < tensionStart || frame > tensionStart + F_TENSION + 5) {

@@ -1,18 +1,18 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_GUJARATI, FONT_HEADLINE } from "./Constants";
+import { F_ANSWER, PALETTES, FONT_GUJARATI, FONT_HEADLINE } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 export const RevealExtras: React.FC<{
     question: any;
     reelIndex: number;
-}> = ({ question, reelIndex }) => {
+    optionsStart: number;
+    answerStart: number;
+}> = ({ question, reelIndex, optionsStart, answerStart }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
 
-    const optionsStart = F_HOOK + F_QUESTION;
-    const answerStart = optionsStart + F_OPTIONS + F_TENSION;
     const explanationStart = answerStart + F_ANSWER;
 
     // Answer Phase (Frame 390 - 480)

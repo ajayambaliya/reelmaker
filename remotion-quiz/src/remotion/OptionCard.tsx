@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
+import { PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 interface OptionProps {
@@ -8,16 +8,14 @@ interface OptionProps {
     text: string;
     reelIndex: number;
     isCorrect: boolean;
+    optionsStart: number;
+    answerStart: number;
 }
 
-export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCorrect }) => {
+export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCorrect, optionsStart, answerStart }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
-
-    // Global Timing Offsets
-    const optionsStart = F_HOOK + F_QUESTION;
-    const answerStart = optionsStart + F_OPTIONS + F_TENSION;
 
     // Phase 3: Options (Option entries staggered by 30 frames: 180, 210, 240, 270)
     const enterFrame = optionsStart + index * 30;

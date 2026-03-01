@@ -1,11 +1,11 @@
-export const F_HOOK = 45;
+export const F_INTRO = 150;
 export const F_QUESTION = 135;
 export const F_OPTIONS = 150;
 export const F_TENSION = 60;
 export const F_ANSWER = 90;
 export const F_EXPLANATION = 120;
 export const F_LOOP = 60;
-export const F_TOTAL = F_HOOK + F_QUESTION + F_OPTIONS + F_TENSION + F_ANSWER + F_EXPLANATION + F_LOOP;
+export const F_BASE_TOTAL = F_QUESTION + F_OPTIONS + F_TENSION + F_ANSWER + F_EXPLANATION + F_LOOP;
 
 export const PALETTES = [
     {

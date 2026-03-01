@@ -10,7 +10,7 @@ import {
 } from "remotion";
 import { QuestionSegment } from "./QuestionSegment";
 import { Background } from "./Background";
-import { F_TOTAL } from "./Constants";
+import { F_INTRO, F_BASE_TOTAL } from "./Constants";
 import { loadFont as loadHindVadodara } from "@remotion/google-fonts/HindVadodara";
 import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
 import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
@@ -76,20 +76,27 @@ export const QuizReel: React.FC<{ reelIndex: number }> = ({ reelIndex }) => {
         <AbsoluteFill className="bg-black font-sans text-white">
             <Background reelIndex={reelIndex} />
 
-            {rawQuestions.map((q, i) => (
-                <Sequence
-                    key={q.question_number}
-                    from={i * F_TOTAL}
-                    durationInFrames={F_TOTAL}
-                >
-                    <QuestionSegment
-                        question={q}
-                        meta={data.meta}
-                        reelIndex={reelIndex}
-                        isLast={i === rawQuestions.length - 1}
-                    />
-                </Sequence>
-            ))}
+            {rawQuestions.map((q, i) => {
+                const isFirst = i === 0;
+                const startFrame = isFirst ? 0 : F_INTRO + (i - 1) * F_BASE_TOTAL;
+                const duration = isFirst ? F_INTRO + F_BASE_TOTAL : F_BASE_TOTAL;
+
+                return (
+                    <Sequence
+                        key={q.question_number}
+                        from={startFrame}
+                        durationInFrames={duration}
+                    >
+                        <QuestionSegment
+                            question={q}
+                            meta={data.meta}
+                            reelIndex={reelIndex}
+                            isLast={i === rawQuestions.length - 1}
+                            isFirst={isFirst}
+                        />
+                    </Sequence>
+                );
+            })}
 
             {/* Persistent Audio Track */}
             <Audio

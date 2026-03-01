@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Img } from "remotion";
 import {
-    F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, F_LOOP,
+    F_INTRO, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, F_LOOP,
     PALETTES, FONT_HEADLINE, FONT_GUJARATI, FONT_BODY
 } from "./Constants";
 import { OptionCard } from "./OptionCard";
@@ -15,13 +15,14 @@ export const QuestionSegment: React.FC<{
     meta: any;
     reelIndex: number;
     isLast: boolean;
-}> = ({ question, meta, reelIndex, isLast }) => {
+    isFirst: boolean;
+}> = ({ question, meta, reelIndex, isLast, isFirst }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
 
     // Global phase bounds
-    const questionStart = F_HOOK;
+    const questionStart = isFirst ? F_INTRO : 0;
     const optionsStart = questionStart + F_QUESTION;
     const answerStart = optionsStart + F_OPTIONS + F_TENSION;
     const loopStart = answerStart + F_ANSWER + F_EXPLANATION;
@@ -33,11 +34,10 @@ export const QuestionSegment: React.FC<{
     // QUESTION NUMBER POP (appears during hook, persists)
     const qNumScale = spring({ frame: frame - 20, fps, config: { stiffness: 150, damping: 10 } });
 
-    // -------------- HOOK PHASE (0 - 45) --------------
-    // E.g. "🚨 MOST ASKED PSI QUESTION"
-    const hookProg = spring({ frame: frame - 5, fps, config: { damping: 12, stiffness: 120 } });
-    const hookScale = interpolate(hookProg, [0, 1], [0.8, 1]);
-    const hookOpacity = frame < questionStart ? interpolate(frame, [questionStart - 10, questionStart], [1, 0]) : 0;
+    // -------------- HOOK PHASE (0 - 150) --------------
+    const hookProg = isFirst ? spring({ frame: frame - 5, fps, config: { damping: 12, stiffness: 120 } }) : 1;
+    const hookScale = isFirst ? interpolate(hookProg, [0, 1], [0.8, 1]) : 1;
+    const hookOpacity = isFirst && frame < questionStart ? interpolate(frame, [questionStart - 10, questionStart], [1, 0]) : 0;
 
     // -------------- QUESTION PHASE (45 - 180) --------------
     const cardProg = spring({ frame: frame - questionStart, fps, config: { damping: 14 } });
@@ -70,35 +70,37 @@ export const QuestionSegment: React.FC<{
             </div>
 
             {/* Hook Scene (Fades out when question appears) */}
-            {frame < questionStart && (
-                <div style={{ position: "absolute", top: 250, width: "100%", textAlign: "center", opacity: hookOpacity, transform: `scale(${hookScale})`, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <Img src={logoUrl} style={{ width: 150, height: 150, borderRadius: 20, marginBottom: 20 }} />
-                    <h1 style={{ fontSize: 60, fontWeight: "800", color: "#FF8A65", fontFamily: FONT_HEADLINE, margin: 0 }}>
-                        CurrentAdda
-                    </h1>
-                    <div style={{ margin: "40px 0" }}>
-                        <h2 style={{ fontSize: 45, fontWeight: "600", color: "white", fontFamily: FONT_GUJARATI, margin: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            📝 કરંટ અફેર્સ ક્વિઝ
-                        </h2>
-                        <h3 style={{ fontSize: 32, fontWeight: "400", color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY, marginTop: 10 }}>
-                            Current Affairs Quiz
+            {isFirst && frame < questionStart && (
+                <AbsoluteFill style={{ backgroundColor: "#0B0F1A", zIndex: 100, opacity: hookOpacity }}>
+                    <div style={{ position: "absolute", top: 250, width: "100%", textAlign: "center", transform: `scale(${hookScale})`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <Img src={logoUrl} style={{ width: 150, height: 150, borderRadius: 20, marginBottom: 20 }} />
+                        <h1 style={{ fontSize: 60, fontWeight: "800", color: "#FF8A65", fontFamily: FONT_HEADLINE, margin: 0 }}>
+                            CurrentAdda
+                        </h1>
+                        <div style={{ margin: "40px 0" }}>
+                            <h2 style={{ fontSize: 45, fontWeight: "600", color: "white", fontFamily: FONT_GUJARATI, margin: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                📝 કરંટ અફેર્સ ક્વિઝ
+                            </h2>
+                            <h3 style={{ fontSize: 32, fontWeight: "400", color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY, marginTop: 10 }}>
+                                Current Affairs Quiz
+                            </h3>
+                        </div>
+                        <div style={{ backgroundColor: "rgba(255,255,255,0.1)", padding: "15px 40px", borderRadius: 30, marginBottom: 40, border: "1px solid rgba(255,255,255,0.2)" }}>
+                            <h3 style={{ fontSize: 32, color: "white", fontFamily: FONT_GUJARATI, margin: 0 }}>
+                                📅 {meta.date_gujarati || meta.date}
+                            </h3>
+                        </div>
+                        <h3 style={{ fontSize: 38, color: palette.correct, fontFamily: FONT_GUJARATI, fontWeight: "600", marginBottom: 60 }}>
+                            🎯 5 પ્રશ્નો • જવાબ વિચારો!
                         </h3>
-                    </div>
-                    <div style={{ backgroundColor: "rgba(255,255,255,0.1)", padding: "15px 40px", borderRadius: 30, marginBottom: 40, border: "1px solid rgba(255,255,255,0.2)" }}>
-                        <h3 style={{ fontSize: 32, color: "white", fontFamily: FONT_GUJARATI, margin: 0 }}>
-                            📅 {meta.date_gujarati || meta.date}
-                        </h3>
-                    </div>
-                    <h3 style={{ fontSize: 38, color: palette.correct, fontFamily: FONT_GUJARATI, fontWeight: "600", marginBottom: 60 }}>
-                        🎯 5 પ્રશ્નો • જવાબ વિચારો!
-                    </h3>
 
-                    <div style={{ backgroundColor: "rgba(255, 0, 0, 0.15)", padding: "20px 40px", borderRadius: 20, border: "2px solid rgba(255,0,0,0.3)", maxWidth: "80%" }}>
-                        <h2 style={{ fontSize: 42, fontWeight: "800", color: palette.gold, fontFamily: FONT_GUJARATI, margin: 0, textShadow: "0 4px 10px black", lineHeight: 1.4 }}>
-                            🚨 90% લોકો આ પ્રશ્નોના<br />ખોટા જવાબો આપે છે.
-                        </h2>
+                        <div style={{ backgroundColor: "rgba(255, 0, 0, 0.15)", padding: "20px 40px", borderRadius: 20, border: "2px solid rgba(255,0,0,0.3)", maxWidth: "80%" }}>
+                            <h2 style={{ fontSize: 42, fontWeight: "800", color: palette.gold, fontFamily: FONT_GUJARATI, margin: 0, textShadow: "0 4px 10px black", lineHeight: 1.4 }}>
+                                🚨 90% લોકો આ પ્રશ્નોના<br />ખોટા જવાબો આપે છે.
+                            </h2>
+                        </div>
                     </div>
-                </div>
+                </AbsoluteFill>
             )}
 
             {/* Main Question Elements (Appears at Question Phase) */}
@@ -148,16 +150,20 @@ export const QuestionSegment: React.FC<{
                                 text={text as string}
                                 reelIndex={reelIndex}
                                 isCorrect={idx === correctIdx}
+                                optionsStart={optionsStart}
+                                answerStart={answerStart}
                             />
                         );
                     })}
 
-                    <TimerBar reelIndex={reelIndex} />
+                    <TimerBar reelIndex={reelIndex} optionsStart={optionsStart} />
 
                     {/* Reveal Effects & Answers */}
                     <RevealExtras
                         question={question}
                         reelIndex={reelIndex}
+                        optionsStart={optionsStart}
+                        answerStart={answerStart}
                     />
                 </>
             )}
