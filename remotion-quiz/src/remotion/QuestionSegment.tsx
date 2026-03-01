@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_INTRO, F_THINK, F_REVEAL, F_OUTRO, PALETTES, FONT_FAMILY } from "./Constants";
+import { F_INTRO, F_THINK, F_REVEAL, PALETTES, FONT_FAMILY } from "./Constants";
 import { OptionCard } from "./OptionCard";
 import { TimerBar } from "./TimerBar";
 import { GlassCard } from "./GlassCard";
@@ -17,7 +17,6 @@ export const QuestionSegment: React.FC<{
     const palette = PALETTES[reelIndex % 4];
 
     // Global phases bounds relative to 0 start
-    const introEnd = F_INTRO;
     const thinkEnd = F_INTRO + F_THINK;
     const revealEnd = thinkEnd + F_REVEAL;
 
@@ -26,7 +25,7 @@ export const QuestionSegment: React.FC<{
     const headerY = interpolate(headerProg, [0, 1], [-50, 0]);
 
     // Question Q.01 scale pop
-    const qNumScale = spring({ frame: frame - 20, fps, config: { tension: 150, friction: 10 } });
+    const qNumScale = spring({ frame: frame - 20, fps, config: { stiffness: 150, damping: 10 } });
 
     // Card slide up
     const cardProg = spring({ frame: frame - 50, fps, config: { damping: 14 } });
