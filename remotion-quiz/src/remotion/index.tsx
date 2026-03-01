@@ -13,7 +13,11 @@ import { Background } from "./Background";
 import { F_TOTAL } from "./Constants";
 import { loadFont } from "@remotion/google-fonts/NotoSerifGujarati";
 
-loadFont();
+loadFont("normal", {
+    weights: ["400", "700"],
+    subsets: ["gujarati", "latin"],
+    ignoreTooManyRequestsWarning: true
+});
 
 export interface ReelData {
     meta: any;
