@@ -11,6 +11,9 @@ import {
 import { QuestionSegment } from "./QuestionSegment";
 import { Background } from "./Background";
 import { F_TOTAL } from "./Constants";
+import { loadFont } from "@remotion/google-fonts/NotoSerifGujarati";
+
+loadFont();
 
 export interface ReelData {
     meta: any;
