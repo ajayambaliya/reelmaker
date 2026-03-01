@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_GUJARATI } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 export const RevealExtras: React.FC<{
@@ -126,44 +126,58 @@ export const RevealExtras: React.FC<{
                     boxShadow={`0 15px 30px rgba(34, 197, 94, 0.4)`}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                        <div style={{ fontSize: 44, fontWeight: "800", fontFamily: FONT_HEADLINE, color: palette.correct, textShadow: "1px 1px 3px black", paddingLeft: 30 }}>
-                            ✅ {correctText.length > 32 ? correctText.substring(0, 32) + "..." : correctText}
+                        <div style={{ fontSize: 44, fontWeight: "600", fontFamily: FONT_GUJARATI, color: palette.correct, textShadow: "1px 1px 3px black", paddingLeft: 30 }}>
+                            ✅ સાચો જવાબ: {correctText.length > 32 ? correctText.substring(0, 32) + "..." : correctText}
                         </div>
                     </div>
                 </GlassCard>
             )}
 
-            {/* EXPLANATION PHASE BULLETS (Fast pop-ins) */}
+            {/* EXPLANATION PHASE BULLETS (Full Screen Overlay) */}
             {relExp >= 0 && bullets.length > 0 && (
-                <div style={{
-                    position: "absolute",
-                    top: 1475,
-                    left: 60,
-                    width: 960,
-                    zIndex: 20
+                <AbsoluteFill style={{
+                    backgroundColor: "rgba(8, 12, 20, 0.98)", // Solid dark background to hide question phase
+                    opacity: interpolate(relExp, [0, 15, 55, 60], [0, 1, 1, 0], { extrapolateRight: "clamp" }), // Fades out precisely when loop phase begins
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "60px",
+                    zIndex: 50,
+                    pointerEvents: "none"
                 }}>
-                    {bullets.map((b: string, i: number) => {
-                        const bulletProg = spring({ frame: relExp - (i * bulletSpacing), fps, config: { damping: 14 } });
-                        if (bulletProg <= 0) return null;
+                    <div style={{
+                        position: "absolute", top: 150, width: "100%", textAlign: "center"
+                    }}>
+                        <h2 style={{ fontSize: 55, fontWeight: "800", color: palette.gold, fontFamily: FONT_GUJARATI, letterSpacing: 2, textShadow: "0 5px 15px black" }}>
+                            સ્પષ્ટતા (Explanation)
+                        </h2>
+                    </div>
 
-                        return (
-                            <div key={i} style={{
-                                backgroundColor: "rgba(0,0,0,0.85)",
-                                borderRadius: 16,
-                                padding: "18px 25px",
-                                marginBottom: 15,
-                                opacity: bulletProg,
-                                transform: `translateY(${(1 - bulletProg) * 20}px)`,
-                                border: `1px solid rgba(255,255,255,0.1)`,
-                                borderLeft: `6px solid ${palette.gold}`
-                            }}>
-                                <div style={{ fontSize: 36, color: "white", fontFamily: FONT_GUJARATI, fontWeight: "600", lineHeight: 1.3 }}>
-                                    {b}
+                    <div style={{ width: "100%", marginTop: 80 }}>
+                        {bullets.map((b: string, i: number) => {
+                            const bulletProg = spring({ frame: relExp - 10 - (i * bulletSpacing), fps, config: { damping: 14 } });
+                            if (bulletProg <= 0) return null;
+
+                            return (
+                                <div key={i} style={{
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    borderRadius: 20,
+                                    padding: "35px 30px",
+                                    marginBottom: 30,
+                                    opacity: bulletProg,
+                                    transform: `translateY(${(1 - bulletProg) * 30}px) scale(${interpolate(bulletProg, [0, 1], [0.95, 1])})`,
+                                    borderLeft: `8px solid ${palette.correct}`,
+                                    boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+                                }}>
+                                    <div style={{ fontSize: 46, color: "white", fontFamily: FONT_GUJARATI, fontWeight: "600", lineHeight: 1.5 }}>
+                                        {b}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                </AbsoluteFill>
             )}
 
         </AbsoluteFill>

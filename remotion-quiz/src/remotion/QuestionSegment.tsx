@@ -104,7 +104,7 @@ export const QuestionSegment: React.FC<{
                         <GlassCard width={980} height={260} top={0} left={0} baseColor="rgba(11, 15, 26, 0.7)" borderColor="rgba(255,255,255,0.1)" opacity={1} boxShadow="0 20px 40px rgba(0,0,0,0.5)">
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", padding: "0 30px" }}>
                                 <p style={{
-                                    fontSize: 52,
+                                    fontSize: (question.question_text || question.text).length > 90 ? 38 : (question.question_text || question.text).length > 60 ? 44 : 52,
                                     fontWeight: "600",
                                     fontFamily: FONT_GUJARATI,
                                     color: "white",
