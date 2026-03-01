@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.mp4
+my-video/
+old_python_method/
+old_method/
+temp_video.mp4
+frames/
+music/
+remotion-quiz/out/

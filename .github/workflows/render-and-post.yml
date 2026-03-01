@@ -1,0 +1,47 @@
+name: Create Reel and Post to Telegram
+
+on:
+  workflow_dispatch:
+    inputs:
+      reelIndex:
+        description: 'Reel Index to render (0 or 1)'
+        required: true
+        default: '0'
+
+jobs:
+  render-and-post:
+    name: Build & Send Reel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'remotion-quiz/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./remotion-quiz
+        run: npm ci
+
+      - name: Render Video
+        working-directory: ./remotion-quiz
+        run: npx remotion render QuizReel${{ github.event.inputs.reelIndex }} out/reel${{ github.event.inputs.reelIndex }}.mp4 --gl=angle
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel${{ github.event.inputs.reelIndex }}.mp4
+          path: remotion-quiz/out/reel${{ github.event.inputs.reelIndex }}.mp4
+
+      - name: Send to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          curl -v -F "chat_id=@gujtest1" \
+               -F "video=@remotion-quiz/out/reel${{ github.event.inputs.reelIndex }}.mp4" \
+               -F "caption=Here is the new cinematic Quiz Reel ${{ github.event.inputs.reelIndex }}! 🚀" \
+               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendVideo"
