@@ -78,7 +78,7 @@ export const QuizReel: React.FC<{ reelIndex: number }> = ({ reelIndex }) => {
 
             {rawQuestions.map((q, i) => {
                 const isFirst = i === 0;
-                const startFrame = isFirst ? 0 : F_INTRO + (i - 1) * F_BASE_TOTAL;
+                const startFrame = isFirst ? 0 : F_INTRO + i * F_BASE_TOTAL;
                 const duration = isFirst ? F_INTRO + F_BASE_TOTAL : F_BASE_TOTAL;
 
                 return (
