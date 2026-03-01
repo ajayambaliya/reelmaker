@@ -1,0 +1,81 @@
+import React, { useEffect, useState } from "react";
+import {
+    AbsoluteFill,
+    Audio,
+    Sequence,
+    delayRender,
+    continueRender,
+    staticFile,
+    random,
+} from "remotion";
+import { QuestionSegment } from "./QuestionSegment";
+import { Background } from "./Background";
+import { F_TOTAL } from "./Constants";
+
+export interface ReelData {
+    meta: any;
+    reel_config: any;
+    questions: any[];
+}
+
+export const QuizReel: React.FC<{ reelIndex: number }> = ({ reelIndex }) => {
+    const [handle] = useState(() => delayRender());
+    const [data, setData] = useState<ReelData | null>(null);
+
+    useEffect(() => {
+        fetch(staticFile("data.json"))
+            .then((res) => res.json())
+            .then((json) => {
+                setData(json);
+                continueRender(handle);
+            })
+            .catch((err) => {
+                console.error("Error loading data:", err);
+            });
+    }, [handle]);
+
+    if (!data) {
+        return null;
+    }
+
+    // Filter and parse questions
+    const rawQuestions = data.questions.filter((q) => q.reel_index === reelIndex);
+    rawQuestions.sort((a, b) => a.position_in_reel - b.position_in_reel);
+
+    // The music files
+    const musicFiles = [
+        "delosound-background-music-upbeat-405218.mp3",
+        "delosound-inspiring-motivation-music-374880.mp3",
+        "kornevmusic-upbeat-happy-corporate-487426.mp3",
+        "paulyudin-motivational-485930.mp3",
+        "tatamusic-energetic-upbeat-background-music-377668.mp3",
+        "the_mountain-background-music-159125.mp3"
+    ];
+    const audioIndex = Math.floor(random(`audio-${reelIndex}`) * musicFiles.length);
+
+    return (
+        <AbsoluteFill className="bg-black font-sans text-white">
+            <Background reelIndex={reelIndex} />
+
+            {rawQuestions.map((q, i) => (
+                <Sequence
+                    key={q.question_number}
+                    from={i * F_TOTAL}
+                    durationInFrames={F_TOTAL}
+                >
+                    <QuestionSegment
+                        question={q}
+                        meta={data.meta}
+                        reelIndex={reelIndex}
+                        isLast={i === rawQuestions.length - 1}
+                    />
+                </Sequence>
+            ))}
+
+            {/* Persistent Audio Track */}
+            <Audio
+                src={staticFile(musicFiles[audioIndex])}
+            />
+        </AbsoluteFill>
+    );
+};
