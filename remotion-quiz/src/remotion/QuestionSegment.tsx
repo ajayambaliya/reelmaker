@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Img, staticFile } from "remotion";
+import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Img } from "remotion";
 import {
     F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, F_LOOP,
     PALETTES, FONT_HEADLINE, FONT_GUJARATI, FONT_BODY
@@ -8,6 +8,7 @@ import { OptionCard } from "./OptionCard";
 import { TimerBar } from "./TimerBar";
 import { GlassCard } from "./GlassCard";
 import { RevealExtras } from "./RevealExtras";
+import logoUrl from "../../../public/logo.png";
 
 export const QuestionSegment: React.FC<{
     question: any;
@@ -71,7 +72,7 @@ export const QuestionSegment: React.FC<{
             {/* Hook Scene (Fades out when question appears) */}
             {frame < questionStart && (
                 <div style={{ position: "absolute", top: 250, width: "100%", textAlign: "center", opacity: hookOpacity, transform: `scale(${hookScale})`, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <Img src={staticFile("logo.png")} style={{ width: 150, height: 150, borderRadius: 20, marginBottom: 20 }} />
+                    <Img src={logoUrl} style={{ width: 150, height: 150, borderRadius: 20, marginBottom: 20 }} />
                     <h1 style={{ fontSize: 60, fontWeight: "800", color: "#FF8A65", fontFamily: FONT_HEADLINE, margin: 0 }}>
                         CurrentAdda
                     </h1>
