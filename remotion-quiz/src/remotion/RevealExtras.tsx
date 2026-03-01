@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 export const RevealExtras: React.FC<{
