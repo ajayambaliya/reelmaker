@@ -10,7 +10,6 @@
     "@remotion/cli": "^4.0.431",
     "@remotion/tailwind-v4": "4.0.431",
     "@swc/core": "^1.15.18",
-    "@swc/core-win32-x64-msvc": "^1.15.18",
     "@swc/helpers": "^0.5.19",
     "react": "19.2.3",
     "react-dom": "19.2.3",
