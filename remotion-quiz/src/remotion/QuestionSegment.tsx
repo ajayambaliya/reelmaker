@@ -8,7 +8,7 @@ import { OptionCard } from "./OptionCard";
 import { TimerBar } from "./TimerBar";
 import { GlassCard } from "./GlassCard";
 import { RevealExtras } from "./RevealExtras";
-import logoUrl from "../../../public/logo.png";
+import logoUrl from "../../public/logo.png";
 
 export const QuestionSegment: React.FC<{
     question: any;
