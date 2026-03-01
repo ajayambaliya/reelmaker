@@ -1,67 +1,50 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, spring } from "remotion";
-import { F_INTRO, F_THINK, F_REVEAL, F_OUTRO, PALETTES } from "./Constants";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, PALETTES, FONT_HEADLINE } from "./Constants";
 
-export const TimerBar: React.FC<{
-    reelIndex: number;
-}> = ({ reelIndex }) => {
+export const TimerBar: React.FC<{ reelIndex: number }> = ({ reelIndex }) => {
     const frame = useCurrentFrame();
+    const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
 
-    // Logic for timer
-    const localThinkFrame = frame - F_INTRO;
+    const tensionStart = F_HOOK + F_QUESTION + F_OPTIONS;
 
-    // Opacity fade in and out bounds
-    let opacity = 0;
-    if (localThinkFrame >= 0 && localThinkFrame <= F_THINK) {
-        opacity = 1;
-    }
-    if (localThinkFrame > F_THINK && localThinkFrame < F_THINK + 10) {
-        opacity = 1 - (localThinkFrame - F_THINK) / 10;
+    // Only show during tension phase
+    if (frame < tensionStart || frame > tensionStart + F_TENSION + 5) {
+        return null;
     }
 
-    // Timer width from 1 to 0
-    const progress = Math.max(0, 1 - localThinkFrame / F_THINK);
+    const relFrame = frame - tensionStart;
+    const progress = Math.min(1, Math.max(0, relFrame / F_TENSION)); // 0 to 1
 
-    let color = palette.correct;
-    if (progress < 0.25) color = palette.wrong;
-    else if (progress < 0.55) color = palette.gold;
+    // Timer goes 3..2..1..
+    const secondsLeft = Math.ceil((F_TENSION - relFrame) / fps);
+
+    // Color changes to red in last second
+    const color = relFrame > F_TENSION - 30 ? palette.wrong : palette.gold;
+
+    // Shrinks from 960 to 0
+    const width = interpolate(progress, [0, 1], [960, 0]);
+
+    // Opacity fade in quick
+    const opacity = interpolate(relFrame, [0, 5], [0, 1], { extrapolateRight: "clamp" });
 
     return (
-        <div
-            style={{
-                position: "absolute",
-                top: 1710,
-                left: 50,
-                width: 980,
-                height: 18,
-                borderRadius: 9,
-                backgroundColor: "rgba(0,0,0,0.5)",
-                opacity: Math.max(0, opacity),
-            }}
-        >
-            <div
-                style={{
-                    width: `${progress * 100}%`,
-                    height: "100%",
-                    backgroundColor: color,
-                    borderRadius: 9,
-                    boxShadow: `0 0 10px ${color}`,
-                    transition: "width 0.1s linear"
-                }}
-            />
-            {progress > 0 && (
-                <div style={{
-                    position: 'absolute',
-                    left: `calc(${progress * 100}% - 12px)`,
-                    top: -3,
-                    width: 24,
-                    height: 24,
-                    backgroundColor: 'white',
-                    borderRadius: '50%',
-                    boxShadow: `0 0 15px white`
-                }} />
-            )}
+        <div style={{ position: "absolute", top: 180, left: 60, width: 960, height: 16, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 8, opacity }}>
+
+            {/* Countdown Text */}
+            <div style={{ position: "absolute", top: -70, right: 0, fontSize: 50, fontWeight: "800", color, fontFamily: FONT_HEADLINE, textShadow: "0 0 10px black" }}>
+                {secondsLeft}
+            </div>
+
+            {/* Shrinking Bar */}
+            <div style={{
+                width: width,
+                height: "100%",
+                backgroundColor: color,
+                borderRadius: 8,
+                boxShadow: `0 0 15px ${color}`
+            }} />
         </div>
     );
 };

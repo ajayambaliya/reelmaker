@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { F_INTRO, F_THINK, PALETTES, FONT_FAMILY } from "./Constants";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 interface OptionProps {
@@ -8,19 +8,19 @@ interface OptionProps {
     text: string;
     reelIndex: number;
     isCorrect: boolean;
-    revealStartFrame: number;
 }
 
-export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCorrect, revealStartFrame }) => {
+export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCorrect }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
     const palette = PALETTES[reelIndex % 4];
 
-    // Animation values
-    const thinkStart = F_INTRO;
+    // Global Timing Offsets
+    const optionsStart = F_HOOK + F_QUESTION;
+    const answerStart = optionsStart + F_OPTIONS + F_TENSION;
 
-    // All enter at the same time at frame 15 of Think
-    const enterFrame = thinkStart + 15;
+    // Phase 3: Options (Option entries staggered by 30 frames: 180, 210, 240, 270)
+    const enterFrame = optionsStart + index * 30;
     const entryProgress = spring({
         frame: frame - enterFrame,
         fps,
@@ -28,18 +28,19 @@ export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCo
     });
 
     const letters = ["A", "B", "C", "D"];
-    const topPos = 690 + index * 180;
+    const topPos = 680 + index * 200;
 
-    // Reveal logic
-    const relRevealFrame = frame - revealStartFrame;
+    // Phase 5: Answer Reveal
+    const relRevealFrame = frame - answerStart;
     let flash = false;
-    let baseColor = "#19142d"; // default back color
-    let borderColor = palette.accent;
+    let baseColor = "#0f1629";
+    let borderColor = "rgba(255,255,255,0.05)";
     let textOpacity = 1;
     let circleColor = palette.accent;
-    let shadow = `0 15px 30px rgba(0,0,0,0.6)`;
+    let shadow = `0 10px 20px rgba(0,0,0,0.4)`;
     let scale = 1;
 
+    // Answer Logic
     if (relRevealFrame > 0 && relRevealFrame < 6) {
         flash = true; // white flash
     } else if (relRevealFrame >= 6) {
@@ -54,13 +55,20 @@ export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCo
             baseColor = palette.wrong;
             borderColor = palette.wrong;
             circleColor = palette.wrong;
-            textOpacity = 1 - wrongProgress * 0.6; // Drops to 40%
+            textOpacity = Math.max(0.4, 1 - wrongProgress);
         }
     }
 
     // Pre-entry opacity and slide up
-    const yOffset = interpolate(entryProgress, [0, 1], [100, 0]);
+    const yOffset = interpolate(entryProgress, [0, 1], [60, 0]);
     const currentOpacity = entryProgress;
+
+    // Tension hover effect: if active (just an illusion, scale up slightly on entry finishing)
+    const hoverScale = interpolate(entryProgress, [0, 0.8, 1], [0.95, 1.02, 1], { extrapolateRight: "clamp" });
+    scale *= hoverScale;
+
+    // Slight fade out logic at end (if loop trigger starts)
+    const loopOpacity = frame > 540 ? interpolate(frame, [540, 570], [1, 0]) : 1;
 
     return (
         <GlassCard
@@ -68,7 +76,7 @@ export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCo
             height={160}
             left={60}
             top={topPos + yOffset}
-            opacity={currentOpacity}
+            opacity={Math.min(currentOpacity, loopOpacity)}
             baseColor={baseColor}
             borderColor={borderColor}
             flash={flash}
@@ -77,24 +85,25 @@ export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCo
         >
             <div style={{ display: "flex", alignItems: "center", height: "100%", position: "relative" }}>
                 {/* Accent sidebar inside card */}
-                <div style={{ position: "absolute", left: -22, top: "5%", height: "90%", width: 6, backgroundColor: palette.accent, borderRadius: 3 }} />
+                <div style={{ position: "absolute", left: -22, top: "20%", height: "60%", width: 6, backgroundColor: palette.accent, borderRadius: 3 }} />
 
                 {/* Letter Circle */}
                 <div
                     style={{
-                        minWidth: 64,
-                        height: 64,
-                        borderRadius: 32,
+                        minWidth: 70,
+                        height: 70,
+                        borderRadius: 35,
                         backgroundColor: isCorrect && relRevealFrame >= 6 ? palette.correct : circleColor,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        marginRight: 30,
-                        fontSize: 34,
-                        fontWeight: "bold",
+                        marginRight: 35,
+                        marginLeft: 10,
+                        fontSize: 36,
+                        fontWeight: "800",
                         color: isCorrect && relRevealFrame >= 6 ? "white" : "white",
-                        textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-                        fontFamily: FONT_FAMILY
+                        textShadow: "1px 1px 3px rgba(0,0,0,0.5)",
+                        fontFamily: FONT_HEADLINE
                     }}
                 >
                     {letters[index]}
@@ -104,12 +113,12 @@ export const OptionCard: React.FC<OptionProps> = ({ index, text, reelIndex, isCo
                 <div
                     style={{
                         fontSize: 42,
-                        fontWeight: "bold",
+                        fontWeight: "600",
                         color: "white",
-                        fontFamily: FONT_FAMILY,
+                        fontFamily: FONT_GUJARATI,
                         opacity: textOpacity,
                         lineHeight: 1.4,
-                        textShadow: "2px 3px 6px rgba(0,0,0,0.6), 4px 4px 10px rgba(0,0,0,0.4)",
+                        textShadow: "2px 2px 5px rgba(0,0,0,0.8)",
                     }}
                 >
                     {text}

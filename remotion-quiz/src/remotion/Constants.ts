@@ -1,34 +1,39 @@
-export const F_INTRO = 90;
-export const F_THINK = 150;
-export const F_REVEAL = 90;
-export const F_OUTRO = 120;
-export const F_TOTAL = F_INTRO + F_THINK + F_REVEAL + F_OUTRO;
+export const F_HOOK = 45;
+export const F_QUESTION = 135;
+export const F_OPTIONS = 150;
+export const F_TENSION = 60;
+export const F_ANSWER = 90;
+export const F_EXPLANATION = 60;
+export const F_LOOP = 60;
+export const F_TOTAL = F_HOOK + F_QUESTION + F_OPTIONS + F_TENSION + F_ANSWER + F_EXPLANATION + F_LOOP;
 
 export const PALETTES = [
     {
-        name: "cosmic",
-        bgTop: "#0a0819", bgMid: "#140f28", bgBot: "#230c32",
-        accent: "#a064ff", glow: "#783cff",
-        correct: "#14f096", wrong: "#ff465a", gold: "#ffd750"
+        name: "dark-neon",
+        bgTop: "#050B14", bgMid: "#0B0F1A", bgBot: "#080C16",
+        accent: "#00E5FF", glow: "#00E5FF",
+        correct: "#22C55E", wrong: "#EF4444", gold: "#FFD60A"
     },
     {
-        name: "ocean",
-        bgTop: "#050c1e", bgMid: "#0a193c", bgBot: "#0f2d50",
-        accent: "#00d2ff", glow: "#008cff",
-        correct: "#14ffaa", wrong: "#ff5064", gold: "#ffdc50"
+        name: "tech-deep",
+        bgTop: "#0A0514", bgMid: "#0B0F1A", bgBot: "#0C0816",
+        accent: "#B000FF", glow: "#B000FF",
+        correct: "#22C55E", wrong: "#EF4444", gold: "#FFD60A"
     },
     {
-        name: "ember",
-        bgTop: "#190a0a", bgMid: "#2d120f", bgBot: "#411612",
-        accent: "#ff7828", glow: "#ff5014",
-        correct: "#3cff82", wrong: "#ff3c64", gold: "#ffdc46"
+        name: "cyan-dream",
+        bgTop: "#05140F", bgMid: "#0B0F1A", bgBot: "#081610",
+        accent: "#00FFB0", glow: "#00FFB0",
+        correct: "#22C55E", wrong: "#EF4444", gold: "#FFD60A"
     },
     {
-        name: "aurora",
-        bgTop: "#061614", bgMid: "#0a2823", bgBot: "#0f3c32",
-        accent: "#00f0b4", glow: "#00b48c",
-        correct: "#28ff8c", wrong: "#ff4b5f", gold: "#ffe13c"
+        name: "crimson-night",
+        bgTop: "#140505", bgMid: "#0B0F1A", bgBot: "#160808",
+        accent: "#FF0055", glow: "#FF0055",
+        correct: "#22C55E", wrong: "#EF4444", gold: "#FFD60A"
     }
 ];
 
-export const FONT_FAMILY = 'Noto Serif Gujarati, sans-serif';
+export const FONT_HEADLINE = "'Montserrat', sans-serif";
+export const FONT_GUJARATI = "'Hind Vadodara', sans-serif";
+export const FONT_BODY = "'Inter', sans-serif";

@@ -1,39 +1,59 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { FONT_FAMILY, PALETTES } from "./Constants";
+import { F_HOOK, F_QUESTION, F_OPTIONS, F_TENSION, F_ANSWER, F_EXPLANATION, PALETTES, FONT_HEADLINE, FONT_GUJARATI } from "./Constants";
 import { GlassCard } from "./GlassCard";
 
 export const RevealExtras: React.FC<{
     question: any;
     reelIndex: number;
-    startFrame: number;
-}> = ({ question, reelIndex, startFrame }) => {
+}> = ({ question, reelIndex }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
-    const relFrame = frame - startFrame;
     const palette = PALETTES[reelIndex % 4];
 
-    if (relFrame <= 0) return null;
+    const optionsStart = F_HOOK + F_QUESTION;
+    const answerStart = optionsStart + F_OPTIONS + F_TENSION;
+    const explanationStart = answerStart + F_ANSWER;
 
-    const glowRadius = spring({ frame: relFrame - 6, fps, config: { damping: 15 } }) * 350;
-    const opacity = interpolate(relFrame - 6, [0, 10, 40, 60], [0, 1, 1, 0], { extrapolateRight: "clamp" });
+    // Answer Phase (Frame 390 - 480)
+    const relAnswer = frame - answerStart;
+
+    // Explanation Phase (Frame 480 - 540)
+    const relExp = frame - explanationStart;
+
+    if (relAnswer <= 0) return null; // Wait until Answer Reveal phase
+
     const correctIdx = ["A", "B", "C", "D"].indexOf(question.correct_answer);
     const correctText = question.options[question.correct_answer] || "";
     const rawBullets = question.explanation.split("•").map((b: string) => b.trim()).filter(Boolean);
-    const bullets = rawBullets.slice(0, 2).map((b: string) => b.substring(0, 60) + (b.length > 60 ? "..." : ""));
+    const bullets = rawBullets.slice(0, 3).map((b: string) => b.substring(0, 60) + (b.length > 60 ? "..." : ""));
 
-    const cy = 690 + correctIdx * 180 + 80;
+    // Option circle Y position
+    const cy = 680 + correctIdx * 200 + 80;
+
+    // ANSWER REVEAL EFFECTS
+    const glowRadius = spring({ frame: relAnswer - 6, fps, config: { damping: 15 } }) * 350;
+    const glowOpacity = interpolate(relAnswer - 6, [0, 10, 60, 90], [0, 1, 1, 0], { extrapolateRight: "clamp" });
+
+    // Screen Flash (Very quick frame 0-6 whiteout)
+    const screenFlash = interpolate(relAnswer, [0, 3, 6], [0, 0.4, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
 
     // Banner slide up
-    const bannerProg = spring({ frame: relFrame - 25, fps, config: { damping: 14 } });
+    const bannerProg = spring({ frame: relAnswer - 20, fps, config: { damping: 14 } });
 
-    // Explanation bullets
-    const bulletsProg = spring({ frame: relFrame - 30, fps, config: { damping: 14 } });
+    // EXPECTATION EFFECTS
+    const bulletSpacing = 20; //frames
 
     return (
         <AbsoluteFill style={{ pointerEvents: "none" }}>
+
+            {/* SCREEN FLASH */}
+            {screenFlash > 0 && (
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', opacity: screenFlash, zIndex: 100 }} />
+            )}
+
             {/* GLOW BLAST */}
-            {relFrame >= 6 && glowRadius > 0 && (
+            {relAnswer >= 6 && glowRadius > 0 && (
                 <>
                     {/* Outer diffuse */}
                     <div
@@ -46,37 +66,23 @@ export const RevealExtras: React.FC<{
                             borderRadius: "50%",
                             backgroundColor: palette.correct,
                             filter: "blur(60px)",
-                            opacity: opacity * 0.4,
-                            mixBlendMode: "screen"
-                        }}
-                    />
-                    {/* Inner intense pulse */}
-                    <div
-                        style={{
-                            position: "absolute",
-                            left: 540 - glowRadius * 0.5,
-                            top: cy - glowRadius * 0.5,
-                            width: glowRadius,
-                            height: glowRadius,
-                            borderRadius: "50%",
-                            backgroundColor: "white",
-                            filter: "blur(30px)",
-                            opacity: opacity * 0.6,
-                            mixBlendMode: "screen"
+                            opacity: glowOpacity * 0.5,
+                            mixBlendMode: "screen",
+                            zIndex: 10
                         }}
                     />
                 </>
             )}
 
             {/* CONFETTI BURST */}
-            {relFrame >= 12 && (
-                <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-                    {Array.from({ length: 80 }).map((_, i) => {
+            {relAnswer >= 10 && (
+                <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 9 }}>
+                    {Array.from({ length: 60 }).map((_, i) => {
                         const rng = Math.sin(i * 12345);
                         const angle = Math.abs(rng) * Math.PI * 2;
-                        const speed = 10 + Math.abs(Math.sin(i * 777)) * 25;
-                        const size = 5 + Math.abs(Math.sin(i * 333)) * 15;
-                        const t = relFrame - 12;
+                        const speed = 15 + Math.abs(Math.sin(i * 777)) * 25;
+                        const size = 6 + Math.abs(Math.sin(i * 333)) * 14;
+                        const t = relAnswer - 10;
 
                         const px = 540 + Math.cos(angle) * speed * t;
                         // Add fake gravity 
@@ -98,7 +104,8 @@ export const RevealExtras: React.FC<{
                                     backgroundColor: i % 3 === 0 ? palette.correct : i % 3 === 1 ? palette.gold : "white",
                                     borderRadius: i % 2 === 0 ? "50%" : 4,
                                     opacity: Math.max(0, pOpacity),
-                                    transform: `rotate(${t * 10}deg)`
+                                    transform: `rotate(${t * 15}deg)`,
+                                    boxShadow: `0 0 10px ${i % 3 === 0 ? palette.correct : "white"}`
                                 }}
                             />
                         );
@@ -106,41 +113,56 @@ export const RevealExtras: React.FC<{
                 </div>
             )}
 
-            {/* Answer Banner */}
-            {relFrame >= 25 && (
+            {/* ANSWER BANNER */}
+            {relAnswer >= 20 && (
                 <GlassCard
                     width={960}
-                    height={85}
+                    height={100}
                     left={60}
-                    top={1560 - (bannerProg * 20)}
+                    top={1600 - (bannerProg * 25)}
                     opacity={bannerProg}
-                    baseColor="#052d14"
+                    baseColor="#0B1A14"
                     borderColor={palette.correct}
-                    boxShadow={`0 10px 20px ${palette.correct}44`}
+                    boxShadow={`0 15px 30px rgba(34, 197, 94, 0.4)`}
                 >
-                    <div style={{ fontSize: 34, fontWeight: "bold", fontFamily: FONT_FAMILY, color: palette.correct, textShadow: "1px 1px 3px black" }}>
-                        ✅ સાચો જવાબ: {correctText.length > 32 ? correctText.substring(0, 32) + "..." : correctText}
+                    <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                        <div style={{ fontSize: 44, fontWeight: "800", fontFamily: FONT_HEADLINE, color: palette.correct, textShadow: "1px 1px 3px black", paddingLeft: 30 }}>
+                            ✅ {correctText.length > 32 ? correctText.substring(0, 32) + "..." : correctText}
+                        </div>
                     </div>
                 </GlassCard>
             )}
 
-            {/* Explanation Bullets */}
-            {relFrame >= 30 && bullets.length > 0 && (
+            {/* EXPLANATION PHASE BULLETS (Fast pop-ins) */}
+            {relExp >= 0 && bullets.length > 0 && (
                 <div style={{
                     position: "absolute",
-                    top: 1420 - (bulletsProg * 20),
+                    top: 1475,
                     left: 60,
                     width: 960,
-                    padding: "20px",
-                    backgroundColor: "rgba(0,0,0,0.7)",
-                    borderRadius: 18,
-                    opacity: bulletsProg
+                    zIndex: 20
                 }}>
-                    {bullets.map((b: string, i: number) => (
-                        <div key={i} style={{ fontSize: 36, color: "#eef", fontFamily: FONT_FAMILY, marginBottom: 10, lineHeight: 1.4, textShadow: "1px 1px 4px black" }}>
-                            • {b}
-                        </div>
-                    ))}
+                    {bullets.map((b: string, i: number) => {
+                        const bulletProg = spring({ frame: relExp - (i * bulletSpacing), fps, config: { damping: 14 } });
+                        if (bulletProg <= 0) return null;
+
+                        return (
+                            <div key={i} style={{
+                                backgroundColor: "rgba(0,0,0,0.85)",
+                                borderRadius: 16,
+                                padding: "18px 25px",
+                                marginBottom: 15,
+                                opacity: bulletProg,
+                                transform: `translateY(${(1 - bulletProg) * 20}px)`,
+                                border: `1px solid rgba(255,255,255,0.1)`,
+                                borderLeft: `6px solid ${palette.gold}`
+                            }}>
+                                <div style={{ fontSize: 36, color: "white", fontFamily: FONT_GUJARATI, fontWeight: "600", lineHeight: 1.3 }}>
+                                    {b}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
 

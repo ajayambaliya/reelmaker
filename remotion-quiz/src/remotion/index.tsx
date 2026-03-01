@@ -11,11 +11,23 @@ import {
 import { QuestionSegment } from "./QuestionSegment";
 import { Background } from "./Background";
 import { F_TOTAL } from "./Constants";
-import { loadFont } from "@remotion/google-fonts/NotoSerifGujarati";
+import { loadFont as loadHindVadodara } from "@remotion/google-fonts/HindVadodara";
+import { loadFont as loadMontserrat } from "@remotion/google-fonts/Montserrat";
+import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
 
-loadFont("normal", {
-    weights: ["400", "700"],
+loadHindVadodara("normal", {
+    weights: ["400", "600"],
     subsets: ["gujarati", "latin"],
+    ignoreTooManyRequestsWarning: true
+});
+loadMontserrat("normal", {
+    weights: ["500", "800"],
+    subsets: ["latin"],
+    ignoreTooManyRequestsWarning: true
+});
+loadInter("normal", {
+    weights: ["400", "600"],
+    subsets: ["latin"],
     ignoreTooManyRequestsWarning: true
 });
 
