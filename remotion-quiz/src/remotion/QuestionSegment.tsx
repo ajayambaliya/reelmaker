@@ -110,16 +110,19 @@ export const QuestionSegment: React.FC<{
             </div>
 
             {/* Options */}
-            {question.options_list.map((text: string, idx: number) => (
-                <OptionCard
-                    key={idx}
-                    index={idx}
-                    text={text}
-                    reelIndex={reelIndex}
-                    isCorrect={idx === question.correct_idx}
-                    revealStartFrame={thinkEnd}
-                />
-            ))}
+            {Object.values(question.options).map((text: any, idx: number) => {
+                const correctIdx = ["A", "B", "C", "D"].indexOf(question.correct_answer);
+                return (
+                    <OptionCard
+                        key={idx}
+                        index={idx}
+                        text={text as string}
+                        reelIndex={reelIndex}
+                        isCorrect={idx === correctIdx}
+                        revealStartFrame={thinkEnd}
+                    />
+                );
+            })}
 
             <TimerBar reelIndex={reelIndex} />
 
